@@ -1,0 +1,32 @@
+{% extends 'Login/header.html' %}
+{% block title %}Home{% endblock %}
+{% block link %}{% url 'home' %} {% endblock %}
+{% block verified %}
+
+    <div class="jumbotron text-center">
+        <h1>Welcome to Venter</h1>
+        <p>You're logged in as {{ user.username }}</p>
+    </div>
+    <p align="left">
+    <pre style="font-family: Corbel; font-size: 16px">
+            Following is a brief description of the working of this portal, along with some tips to be taken care of
+            while using this service.
+
+            Note: It is recommended to use Google Chrome for best results
+
+            <b>CATEGORY PREDICTION MODEL</b>
+
+            The “Category Prediction Model” tab in the navigation bar helps the user to return a set of top three
+            predicted complaint categories for an input CSV file, wherein the output generated is in a tabular format.
+
+            1.  User can upload CSV file to the portal with the correct headers
+            2.  The size limit for input CSV file is 12 MB
+            3.  Initial processing of the file takes about a minute, hence the user is expected to be patient while the
+                portal retrieves the predicted results
+            4.  Some of the languages used in the output predicted categories (e.g. Hindi, Marathi) won’t be displayed when
+                downloaded and viewed on MS Word in Windows. To resolve the same, the user can download Marathi script
+                online to view those categories
+        </pre>
+    </p>
+
+{% endblock %}

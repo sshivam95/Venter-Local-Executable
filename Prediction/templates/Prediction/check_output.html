@@ -1,0 +1,265 @@
+{% extends 'Login/header.html' %}
+{% block link %}{% url 'home' %} {% endblock %}
+{% block verified %}
+    <script>
+
+        var con;
+        var sim;
+        var availableTags =
+            [
+                {% for list in category_list %}
+                    " {{ list }}",
+                {% endfor %}
+            ]
+
+        function progressBarSim(al) {
+            var bar = document.getElementById('progressBar');
+            var status = document.getElementById('status');
+            status.innerHTML = al + "%";
+            bar.value = al;
+
+
+            if (al == 100) {
+
+                {#                var a = setTimeout(function hundred(){bar.value = 100;status.innerHTML = "100%";}, 5000);#}
+                {#                clearTimeout(a);#}
+                bar.value = 100;
+                status.innerHTML = "100%";
+                clearTimeout(sim);
+                document.getElementById('finalMessage').innerHTML = "Processing complete";
+            }
+        }
+
+        function showLoading() {
+            $("#progress").attr('style', 'display:block; padding-top: 10px;');
+        }
+        function hideSmallLoader() {
+            $("#progress").attr('style', 'display:none');
+        }
+
+        function hideLoading() {
+            $("#tableDiv").attr('style', 'display:block');
+            $("#preload").attr('style', 'display:none');
+        }
+
+        function colorcode(num, index) {
+            if (num < 50) {
+                $("#" + index).attr("style", "background-color: #d32f2f");
+            } else {
+                $("#" + index).attr("style", "background-color: #388E3C");
+            }
+        }
+
+        function colorcodeLevel(num, index) {
+            var color = ['#ffffff', '#00FF00', '#388E3C', '#FFFF66', '#d32f2f', '#ff0000'];
+            $("#" + index).attr("style", "background-color:" + color[num]);
+        }
+
+        function send() {
+            alert("Your file is downloading. PLEASE WAIT");
+            var data = {}
+            data['csrfmiddlewaretoken'] = $('input[name="csrfmiddlewaretoken"]').val();
+
+            var totalCount = "{{ rows }}";
+            var currCount = 0;
+            showLoading();
+            progressBarSim(0);
+            {#            console.log("totalCount = "+ totalCount);#}
+            table.$("select").each(function () {
+                var t0 = performance.now();
+                data[$(this).attr('id')] = $(this).val();
+                if ($(this).val() == "Other") {
+                    table.$("input").each(function () {
+                        data[$(this).attr('id')] = $(this).val();
+                    });
+                }
+                currCount++;
+                var percent = parseInt((currCount / totalCount) * 100);
+                var t1 = performance.now();
+
+                sim = setTimeout("progressBarSim(" + percent + ")", 0.05);
+
+                {#                console.log("Time required: " + (t1 - t0) + " milliseconds");#}
+            });
+            data['radio'] = $("input[type=radio]:checked").val()
+
+            $.ajax({
+                url: 'checkOutput/',
+                type: 'POST',
+                data: data,
+                success: function (response, status, xhr) {
+                    // check for a filename
+                    var filename = "";
+                    var disposition = xhr.getResponseHeader('Content-Disposition');
+                    if (disposition && disposition.indexOf('attachment') !== -1) {
+                        var filenameRegex = /filename[^;=\n]*=((['"]).*?\2|[^;\n]*)/;
+                        var matches = filenameRegex.exec(disposition);
+                        if (matches != null && matches[1]) filename = matches[1].replace(/['"]/g, '');
+                    }
+
+                    var type = xhr.getResponseHeader('Content-Type');
+                    var blob = new Blob([response], {type: type});
+
+                    if (typeof window.navigator.msSaveBlob !== 'undefined') {
+                        // IE workaround for "HTML7007: One or more blob URLs were revoked by closing the blob for which they were created. These URLs will no longer resolve as the data backing the URL has been freed."
+                        window.navigator.msSaveBlob(blob, filename);
+                    } else {
+                        var URL = window.URL || window.webkitURL;
+                        var downloadUrl = URL.createObjectURL(blob);
+
+                        if (filename) {
+                            // use HTML5 a[download] attribute to specify filename
+                            var a = document.createElement("a");
+                            // safari doesn't support this yet
+                            if (typeof a.download === 'undefined') {
+                                window.location = downloadUrl;
+                            } else {
+                                a.href = downloadUrl;
+                                a.download = filename;
+                                document.body.appendChild(a);
+                                a.click();
+                            }
+                        } else {
+                            window.location = downloadUrl;
+                        }
+
+                        setTimeout(function () {
+                            URL.revokeObjectURL(downloadUrl);
+                        }, 100); // cleanup
+                    }
+                    hideSmallLoader();
+
+                },
+                error: function (jqXHR, textStatus, errorThrown) {
+                    alert(jqXHR.status+" "+textStatus+" "+errorThrown+", Please Try again or refresh the page.");
+                }
+            });
+        }
+        $(document).ready(function () {
+            table = $('#outerTable').DataTable({
+                order: [[0, "asc"]],
+                "lengthMenu": [[10, 15, 50, 100], [10, 15, 50, 100]],
+            });
+            hideLoading()
+            // Handle form submission event
+
+            $('#submit').on('click', function () {
+                var ques = "Are you sure you want to allow your data to be uploaded for the Venter team to View?"
+                if ($("input[type=radio]:checked").val() != "no") {
+                    if (confirm(ques)) {
+                        send();
+                    } else {
+                        $("input[name='optradio'][value='no']").prop('checked', true);
+                    }
+                } else {
+                    send();
+                }
+            });
+        });
+    </script>
+    <div id="preload" align="center">
+        <h1>Predicting your results</h1>
+        <div class="loader"></div>
+        <h2>Please Wait...</h2>
+    </div>
+    <div align="center" id="tableDiv" style="display: none">
+        <div align="center" style=" width : 98%">
+            {% csrf_token %}
+            <br/>
+            <table id="outerTable" class="table table-striped table-bordered" style="background: white;">
+                <thead>
+                <th>Highest Confidence</th>
+                <th>Predicted Categories</th>
+                <th>Problem Description</th>
+                {#                {% if user.groups.all.0.name == "SpeakUP" %}#}
+                {#                    <th>Urgency Level</th>#}
+                {#                {% endif %}#}
+                </thead>
+                <tbody>
+                {% for dict in content %}
+                    <tr>
+                        <td style="width: 15%">
+                            {{ dict.category.0.1 }}%
+                        </td>
+                        <td id="td{{ dict.index }}" style="width: 25%">
+                            <select id="select_category{{ dict.index }}" name="select{{ dict.index }}"
+                                    style="width: auto">
+                                {% for each in dict.category %}
+                                    <option value="{{ each.0 }}">{{ each.0 }} ({{ each.1 }}%)</option>
+                                {% endfor %}
+                                <option value="Other">Others</option>
+                            </select>
+
+
+                            <script>
+                                $('#select_category{{ dict.index }}').change(function () {
+                                    if ($(this).val() == "Other") {
+                                        if (!($("#other_category{{ dict.index }}").length)) {
+                                            $('#td{{ dict.index }}').append("<input type='text' style='display: block; width : auto' placeholder='Type Category' id='other_category{{ dict.index }}' name='other{{ dict.index }}'/>")
+                                            $("#other_category{{ dict.index }}").autocomplete({
+                                                source: availableTags
+                                            });
+                                        }
+                                    } else if ($("#other_category{{ dict.index }}").length) {
+                                        $("#other_category{{ dict.index }}").remove()
+                                    }
+
+                                });
+                                colorcode({{ dict.category.0.1 }}, "td{{ dict.index }}");
+
+
+                            </script>
+
+                        </td>
+                        <td style="width: 55%">{{ dict.problem_description }}</td>
+                        {#                        {% if user.groups.all.0.name == "SpeakUP" %}#}
+                        {#                            <td id="em{{ dict.index }}" style="width : 5%">{{ dict.emotion }}</td>#}
+                        {#                            <script>#}
+                        {#                                colorcodeLevel({{ dict.emotion }}, "em{{ dict.index }}");#}
+                        {#                            </script>#}
+                        {#                        {% endif %}#}
+                    </tr>
+                {% endfor %}
+                </tbody>
+            </table>
+            <br/>
+
+            <div class="container">
+                <h3>Would you like your modified data to be viewed by the Venter team to help them improve the
+                    prediction
+                    model?</h3>
+                <label class="radio-inline">
+                    <input type="radio" name="optradio" value="yes" checked>YES
+                </label>
+                <label class="radio-inline">
+                    <input type="radio" name="optradio" value="no">NO
+                </label>
+            </div>
+
+            <table>
+                <tr style="padding: 5px">
+                    <td>
+                        <button type="submit" id="submit">Submit and Download</button>
+                    </td>
+                </tr>
+                <tr>
+                    <td>
+                        <div id="progress" style=" display: none;">
+                            <progress id="progressBar" max="100" value="0"
+                                      style="width: 300px"></progress>
+                            <span id="status"></span>
+                            <h3 id="finalMessage"></h3>
+                        </div>
+                    </td>
+                </tr>
+
+
+            </table>
+            <br/><br/>
+
+        </div>
+    </div>
+
+
+{% endblock %}
+
