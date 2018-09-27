@@ -43,10 +43,26 @@
         }
 
         function colorcode(num, index) {
-            if (num < 50) {
-                $("#" + index).attr("style", "background-color: #d32f2f");
-            } else {
-                $("#" + index).attr("style", "background-color: #388E3C");
+            if (num > 90) {
+                $("#" + index).attr("style", "background-color: #00a33b");
+            } else if (num > 80) {
+                $("#" + index).attr("style", "background-color: #06d636");
+            } else if (num > 70) {
+                $("#" + index).attr("style", "background-color: #4ee802");
+            }  else if (num > 60) {
+                $("#" + index).attr("style", "background-color: #c3ff00");
+            }  else if (num > 50) {
+                $("#" + index).attr("style", "background-color: #f6ff00");
+            }  else if (num > 40) {
+                $("#" + index).attr("style", "background-color: #ffe100");
+            }  else if (num > 30) {
+                $("#" + index).attr("style", "background-color: #ffbb00");
+            }  else if (num > 20) {
+                $("#" + index).attr("style", "background-color: #ff8c00");
+            }  else if (num > 10) {
+                $("#" + index).attr("style", "background-color: #ff5900");
+            }  else {
+                $("#" + index).attr("style", "background-color: #af0101");
             }
         }
 
