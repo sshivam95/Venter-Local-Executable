@@ -18,7 +18,7 @@ class UploadFileForm(forms.Form):
         filename = str(content)
         #content_type = content.content_type.split('/')[0]
         Max_SIZE = int(settings.MAX_UPLOAD_SIZE)
-        upload_file_size = int(content._size)
+        upload_file_size = int(content.size)
         if filename.endswith('.csv'):
             if upload_file_size > Max_SIZE:
                 raise forms.ValidationError(_('Please keep filesize under %s. Current filesize %s') % (
