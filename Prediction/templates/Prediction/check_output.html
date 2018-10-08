@@ -49,19 +49,19 @@
                 $("#" + index).attr("style", "background-color: #06d636");
             } else if (num > 70) {
                 $("#" + index).attr("style", "background-color: #4ee802");
-            }  else if (num > 60) {
+            } else if (num > 60) {
                 $("#" + index).attr("style", "background-color: #c3ff00");
-            }  else if (num > 50) {
+            } else if (num > 50) {
                 $("#" + index).attr("style", "background-color: #f6ff00");
-            }  else if (num > 40) {
+            } else if (num > 40) {
                 $("#" + index).attr("style", "background-color: #ffe100");
-            }  else if (num > 30) {
+            } else if (num > 30) {
                 $("#" + index).attr("style", "background-color: #ffbb00");
-            }  else if (num > 20) {
+            } else if (num > 20) {
                 $("#" + index).attr("style", "background-color: #ff8c00");
-            }  else if (num > 10) {
+            } else if (num > 10) {
                 $("#" + index).attr("style", "background-color: #ff5900");
-            }  else {
+            } else {
                 $("#" + index).attr("style", "background-color: #af0101");
             }
         }
@@ -84,9 +84,7 @@
             table.$("select").each(function () {
                 var t0 = performance.now();
                 data[$(this).attr('id')] = $(this).val();
-                table.$("input").each(function () {
-                    data[$(this).attr('id')] = $(this).val();
-                });
+                console.log("data[" + $(this).attr('id') + "]= " + $(this).val());
                 currCount++;
                 var percent = parseInt((currCount / totalCount) * 100);
                 var t1 = performance.now();
@@ -94,6 +92,10 @@
                 sim = setTimeout("progressBarSim(" + percent + ")", 0.05);
 
                 {#                console.log("Time required: " + (t1 - t0) + " milliseconds");#}
+            });
+            table.$("input").each(function () {
+                data[$(this).attr('id')] = $(this).val();
+
             });
             data['radio'] = $("input[type=radio]:checked").val()
 
@@ -145,7 +147,7 @@
 
                 },
                 error: function (jqXHR, textStatus, errorThrown) {
-                    alert(jqXHR.status+" "+textStatus+" "+errorThrown+", Please Try again or refresh the page.");
+                    alert(jqXHR.status + " " + textStatus + " " + errorThrown + ", Please Try again or refresh the page.");
                 }
             });
         }
@@ -196,56 +198,44 @@
                             {{ dict.category.0.1 }}%
                         </td>
                         <form method="POST">{% csrf_token %}
-                        <td id="td{{ dict.index }}" style="width: 25%">
-                            <select id="select_category{{ dict.index }}" name="select{{ dict.index }}"
-                                    style="width: auto" multiple>
-                                {% for each in dict.category %}
-                                <!--to select the category dictionary first element-->
-                                    {% if each == dict.category.0 %}
+                            <td id="td{{ dict.index }}" style="width: 25%">
+                                <select id="select_category{{ dict.index }}" name="select{{ dict.index }}"
+                                        style="width: auto" multiple>
+                                    {% for each in dict.category %}
+                                        <!--to select the category dictionary first element-->
+                                        {% if each == dict.category.0 %}
                                             <option selected value="{{ each.0 }}">{{ each.0 }} ({{ each.1 }}%)</option>
-                                    {% else %}
+                                        {% else %}
                                             <option value="{{ each.0 }}">{{ each.0 }} ({{ each.1 }}%)</option>
-                                    {% endif %}
-                                {% endfor %}
-                            </select>
-                            <button id="add_button{{ dict.index }}" type="button">+</button>
-                            <button id="remove_button{{ dict.index }}" type="button">-</button>
-                            <script>
+                                        {% endif %}
+                                    {% endfor %}
+                                </select>
+                                <button id="add_button{{ dict.index }}" type="button">+</button>
+                                <button id="remove_button{{ dict.index }}" type="button">-</button>
+                                <script>
 
-                                $('#add_button{{ dict.index }}').click(function(){
-                                    $('#td{{ dict.index }}').append("<input type='text' style='display: block; width : auto' placeholder='Type Category' id='other_category{{ dict.index }}' name='other{{ dict.index }}'/>");
-                                    $("#other_category{{ dict.index }}").autocomplete({
-                                                source: availableTags
+                                    $('#add_button{{ dict.index }}').click(function () {
+                                        $('#td{{ dict.index }}').append("<input type='text' style='display: block; width : auto' placeholder='Type Category' id='other_category{{ dict.index }}' name='other{{ dict.index }}'/>");
+                                        $("#other_category{{ dict.index }}").autocomplete({
+                                            source: availableTags
+                                        });
+
                                     });
 
-                                });
+                                    $('#remove_button{{ dict.index }}').click(function () {
+                                        $("#other_category{{ dict.index }}").remove()
+                                    });
 
-                                $('#remove_button{{ dict.index }}').click(function(){
-                                    $("#other_category{{ dict.index }}").remove()
-                                });
+                                </script>
 
-                            </script>
+                                <script>
+                                    $('#select_category{{ dict.index }}').change(function () {
+                                        colorcode({{ dict.category.0.1 }}, "td{{ dict.index }}");
+                                    });
+                                    colorcode({{ dict.category.0.1 }}, "td{{ dict.index }}");
+                                </script>
 
-                            <script>
-                                <!--$('#select_category{{ dict.index }}').change(function () {-->
-                                    <!--if ($(this).val() == "Other") {-->
-                                        <!--if (!($("#other_category{{ dict.index }}").length)) {-->
-                                            <!--$('#td{{ dict.index }}').append("<input type='text' style='display: block; width : auto' placeholder='Type Category' id='other_category{{ dict.index }}' name='other{{ dict.index }}'/>")-->
-                                            <!--$("#other_category{{ dict.index }}").autocomplete({-->
-                                                <!--source: availableTags-->
-                                            <!--});-->
-                                        <!--}-->
-                                    <!--} else if ($("#other_category{{ dict.index }}").length) {-->
-                                        <!--$("#other_category{{ dict.index }}").remove()-->
-                                    <!--}-->
-
-                                <!--});-->
-                                colorcode({{ dict.category.0.1 }}, "td{{ dict.index }}");
-
-
-                            </script>
-
-                        </td>
+                            </td>
                         </form>
                         <td style="width: 55%">{{ dict.problem_description }}</td>
                         {#                        {% if user.groups.all.0.name == "SpeakUP" %}#}

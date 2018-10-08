@@ -73,10 +73,14 @@ def Handle_Form_Data(request):
             for i in range(rows):
                 print(request.POST.getlist('select_category' + str(i)+'[]'))
                 # if request.POST.getlist('select_category' + str(i)+'[]') != "['Other']":
-                correct_category.append(request.POST.getlist('select_category' + str(i)+'[]'))
-                # else:
-                #     correct_category.append("lalalala")
-
+                try:
+                    if request.POST.getlist('other_category'+ str(i)+ '[]') is not None:
+                        tuple = (request.POST.getlist('select_category' + str(i)+'[]'), request.POST['other_category' + str(i)])
+                        correct_category.append(tuple)
+                        print(correct_category)
+                except:
+                    correct_category.append(request.POST.getlist('select_category' + str(i)+'[]'))
+                    print(correct_category)
 
             Csv = CSV_FILE(file_name, user_name, company)
             Csv.write_file(correct_category)
