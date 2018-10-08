@@ -84,11 +84,9 @@
             table.$("select").each(function () {
                 var t0 = performance.now();
                 data[$(this).attr('id')] = $(this).val();
-                if ($(this).val() == "Other") {
-                    table.$("input").each(function () {
-                        data[$(this).attr('id')] = $(this).val();
-                    });
-                }
+                table.$("input").each(function () {
+                    data[$(this).attr('id')] = $(this).val();
+                });
                 currCount++;
                 var percent = parseInt((currCount / totalCount) * 100);
                 var t1 = performance.now();
@@ -192,41 +190,63 @@
                 {#                {% endif %}#}
                 </thead>
                 <tbody>
-                {% for dict in content %}
+                {% for dict in dict_list %}
                     <tr>
                         <td style="width: 15%">
                             {{ dict.category.0.1 }}%
                         </td>
+                        <form method="POST">{% csrf_token %}
                         <td id="td{{ dict.index }}" style="width: 25%">
                             <select id="select_category{{ dict.index }}" name="select{{ dict.index }}"
-                                    style="width: auto">
+                                    style="width: auto" multiple>
                                 {% for each in dict.category %}
-                                    <option value="{{ each.0 }}">{{ each.0 }} ({{ each.1 }}%)</option>
+                                <!--to select the category dictionary first element-->
+                                    {% if each == dict.category.0 %}
+                                            <option selected value="{{ each.0 }}">{{ each.0 }} ({{ each.1 }}%)</option>
+                                    {% else %}
+                                            <option value="{{ each.0 }}">{{ each.0 }} ({{ each.1 }}%)</option>
+                                    {% endif %}
                                 {% endfor %}
-                                <option value="Other">Others</option>
                             </select>
-
-
+                            <button id="add_button{{ dict.index }}" type="button">+</button>
+                            <button id="remove_button{{ dict.index }}" type="button">-</button>
                             <script>
-                                $('#select_category{{ dict.index }}').change(function () {
-                                    if ($(this).val() == "Other") {
-                                        if (!($("#other_category{{ dict.index }}").length)) {
-                                            $('#td{{ dict.index }}').append("<input type='text' style='display: block; width : auto' placeholder='Type Category' id='other_category{{ dict.index }}' name='other{{ dict.index }}'/>")
-                                            $("#other_category{{ dict.index }}").autocomplete({
+
+                                $('#add_button{{ dict.index }}').click(function(){
+                                    $('#td{{ dict.index }}').append("<input type='text' style='display: block; width : auto' placeholder='Type Category' id='other_category{{ dict.index }}' name='other{{ dict.index }}'/>");
+                                    $("#other_category{{ dict.index }}").autocomplete({
                                                 source: availableTags
-                                            });
-                                        }
-                                    } else if ($("#other_category{{ dict.index }}").length) {
-                                        $("#other_category{{ dict.index }}").remove()
-                                    }
+                                    });
 
                                 });
+
+                                $('#remove_button{{ dict.index }}').click(function(){
+                                    $("#other_category{{ dict.index }}").remove()
+                                });
+
+                            </script>
+
+                            <script>
+                                <!--$('#select_category{{ dict.index }}').change(function () {-->
+                                    <!--if ($(this).val() == "Other") {-->
+                                        <!--if (!($("#other_category{{ dict.index }}").length)) {-->
+                                            <!--$('#td{{ dict.index }}').append("<input type='text' style='display: block; width : auto' placeholder='Type Category' id='other_category{{ dict.index }}' name='other{{ dict.index }}'/>")-->
+                                            <!--$("#other_category{{ dict.index }}").autocomplete({-->
+                                                <!--source: availableTags-->
+                                            <!--});-->
+                                        <!--}-->
+                                    <!--} else if ($("#other_category{{ dict.index }}").length) {-->
+                                        <!--$("#other_category{{ dict.index }}").remove()-->
+                                    <!--}-->
+
+                                <!--});-->
                                 colorcode({{ dict.category.0.1 }}, "td{{ dict.index }}");
 
 
                             </script>
 
                         </td>
+                        </form>
                         <td style="width: 55%">{{ dict.problem_description }}</td>
                         {#                        {% if user.groups.all.0.name == "SpeakUP" %}#}
                         {#                            <td id="em{{ dict.index }}" style="width : 5%">{{ dict.emotion }}</td>#}

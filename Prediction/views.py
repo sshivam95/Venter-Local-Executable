@@ -43,8 +43,8 @@ def upload_file(request):
                 Csv = CSV_FILE(file_name, user_name, company)
                 Header_flag, CATEGORY_LIST = Csv.check_csvfile_header()
                 if Header_flag:
-                    Dict, rows = Csv.Read_file()
-                    context = {'content': Dict, 'category_list': CATEGORY_LIST, 'rows': rows}
+                    Dict_List, rows = Csv.Read_file()
+                    context = {'dict_list': Dict_List, 'category_list': CATEGORY_LIST, 'rows': rows}
                     request.session['Rows'] = rows
                     request.session['filename'] = file_name
                     return render(request, 'Prediction/check_output.html', context)
@@ -69,13 +69,13 @@ def Handle_Form_Data(request):
         if request.method == 'POST':
             file_name = request.session['filename']
             user_name = request.user.username
+
             for i in range(rows):
-                if request.POST['select_category' + str(i)] != "Other":
-                    correct_category.append(request.POST['select_category' + str(i)])
-                    # print("Select row: select" + str(i))
-                else:
-                    # print("other row: other" + str(i))
-                    correct_category.append(request.POST['other_category' + str(i)])
+                print(request.POST.getlist('select_category' + str(i)+'[]'))
+                # if request.POST.getlist('select_category' + str(i)+'[]') != "['Other']":
+                correct_category.append(request.POST.getlist('select_category' + str(i)+'[]'))
+                # else:
+                #     correct_category.append("lalalala")
 
 
             Csv = CSV_FILE(file_name, user_name, company)
