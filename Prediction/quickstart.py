@@ -1,6 +1,4 @@
 from __future__ import print_function
-import os
-
 from googleapiclient import discovery
 from googleapiclient.http import MediaFileUpload
 from httplib2 import Http

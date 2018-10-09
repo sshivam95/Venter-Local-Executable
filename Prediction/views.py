@@ -1,3 +1,9 @@
+"""
+ This view will render a simple html form if the request is GET. If request is POST then will collect the
+ uploaded csv file and save it in appropriate user account.
+
+ ps: write documentation of user group
+"""
 from django.shortcuts import redirect
 # from django.http import HttpResponseRedirect
 from django.contrib.auth.models import Group
@@ -11,13 +17,6 @@ from django.http import HttpResponse, HttpResponseRedirect
 import os
 
 # Create your views here.
-'''
- This view will render a simple html form if the request is GET. If request is POST then will collect the
- uploaded csv file and save it in appropriate user account.
-
- ps: write documentation of user group
-'''
-
 from Prediction import quickstart
 
 def upload_file(request):
