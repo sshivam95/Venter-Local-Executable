@@ -71,11 +71,9 @@ def Handle_Form_Data(request):
             user_name = request.user.username
 
             for i in range(rows):
-                print(request.POST.getlist('select_category' + str(i)+'[]'))
-                # if request.POST.getlist('select_category' + str(i)+'[]') != "['Other']":
                 try:
-                    if request.POST.getlist('other_category'+ str(i)+ '[]') is not None:
-                        tuple = (request.POST.getlist('select_category' + str(i)+'[]'), request.POST['other_category' + str(i)])
+                    if request.POST.getlist('add_button'+ str(i)+ '[]') is not None:
+                        tuple = (request.POST.getlist('select_category' + str(i)+'[]'), request.POST['add_button' + str(i)])
                         correct_category.append(tuple)
                         print(correct_category)
                 except:
