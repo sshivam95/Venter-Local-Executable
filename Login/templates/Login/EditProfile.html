@@ -1,0 +1,78 @@
+{% extends 'Login/header.html' %}
+{% block title %}Home{% endblock %}
+{% block link %}{% url 'home' %} {% endblock %}
+{% block verified %}
+    <style>
+        /* Style inputs with type="text", select elements and textareas */
+        input, select, textarea {
+            width: 100%; /* Full width */
+            padding: 12px; /* Some padding */
+            border: 1px solid #ccc; /* Gray border */
+            border-radius: 4px; /* Rounded borders */
+            box-sizing: border-box; /* Make sure that padding and width stays in place */
+            margin-top: 6px; /* Add a top margin */
+            margin-bottom: 16px; /* Bottom margin */
+            resize: vertical /* Allow the user to vertically resize the textarea (not horizontally) */
+        }
+
+        /* Style the submit button with a specific background color etc */
+        button {
+            background-color: #4CAF50;
+            color: white;
+            padding: 12px 20px;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+        }
+
+        /* When moving the mouse over the submit button, add a darker green color */
+        button:hover {
+            background-color: #45a049;
+        }
+
+        /* Add a background color and some padding around the form */
+        .container {
+            border-radius: 5px;
+            background-color: #f2f2f2;
+            padding: 20px;
+        }
+    </style>
+    {% if Flag == "success" %}
+        <div class="alert alert-success">
+            <strong>Success!</strong>
+            <p>{{ Message }}</p>
+        </div>
+    {% endif %}
+    <div class="container">
+        <label for="username">Username</label>
+        <input type="text" id="username" value="{{ UserName }}" readonly>
+
+        <label for="group">Group</label>
+        <input type="text" id="group" value="{{ Group }}" readonly>
+
+        <form action="" method="post">
+
+            {#            <div class="container_form">#}
+            {#                {% csrf_token %}#}
+            {#                {{ form.as_p }}#}
+            {#                <input type="submit" value="Submit" onclick="showLoading()">#}
+            {#            </div>#}
+            {% csrf_token %}
+            <label for="fname">First Name</label>
+            <input type="text" id="fname" name="FirstName" value="{{ FirstName }}" required>
+
+            <label for="lname">Last Name</label>
+            <input type="text" id="lname" name="LastName" value="{{ LastName }}">
+
+            <label for="email">Email</label>
+            <input type="email" id="email" name="Email" value="{{ Email }}" required/> <br>
+            <div align="center">
+                <button type="submit">Update</button>
+            </div>
+        </form>
+
+    </div>
+
+{% endblock %}
+
+
