@@ -1,5 +1,5 @@
 {% extends 'Login/header.html' %}
-{% block title %}Home{% endblock %}
+{% block title %}Edit Profile{% endblock %}
 {% block link %}{% url 'home' %} {% endblock %}
 {% block verified %}
     <style>
@@ -51,12 +51,6 @@
         <input type="text" id="group" value="{{ Group }}" readonly>
 
         <form action="" method="post">
-
-            {#            <div class="container_form">#}
-            {#                {% csrf_token %}#}
-            {#                {{ form.as_p }}#}
-            {#                <input type="submit" value="Submit" onclick="showLoading()">#}
-            {#            </div>#}
             {% csrf_token %}
             <label for="fname">First Name</label>
             <input type="text" id="fname" name="FirstName" value="{{ FirstName }}" required>

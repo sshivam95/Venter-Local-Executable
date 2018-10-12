@@ -3,10 +3,11 @@ from django.contrib.auth.models import Group
 from django.shortcuts import render
 from .forms import UploadFileForm
 from django.conf import settings
-from .EditCsvFile import CSV_FILE
+from .manipulate_csv import edit_csv
 from django.http import HttpResponse
 import os
-from Prediction import quickstart
+from Prediction import upload_to_google_drive
+
 
 def upload_file(request):
     """
@@ -34,7 +35,7 @@ def upload_file(request):
             file_name = str(request.FILES['file'].name)
             if form.is_valid():
                 handle_uploaded_file(request.FILES['file'], user_name, file_name)
-                Csv = CSV_FILE(file_name, user_name, company)
+                Csv = edit_csv(file_name, user_name, company)
                 Header_flag, CATEGORY_LIST = Csv.check_csvfile_header()
                 if Header_flag:
                     Dict_List, rows = Csv.Read_file()
@@ -52,7 +53,7 @@ def upload_file(request):
         return render(request, 'Prediction/predict_complaint.html', {'form': form})
 
 
-def Handle_Form_Data(request):
+def handle_form_data(request):
     if not request.user.is_authenticated:
         return redirect(settings.LOGIN_REDIRECT_URL)
     else:
@@ -72,7 +73,7 @@ def Handle_Form_Data(request):
                 else:
                     correct_category.append(selected_category)
         print(correct_category)
-        Csv = CSV_FILE(file_name, user_name, company)
+        Csv = edit_csv(file_name, user_name, company)
         Csv.write_file(correct_category)
 
         if request.POST['radio'] != "no":
@@ -80,8 +81,11 @@ def Handle_Form_Data(request):
             path_file = 'MEDIA/' + request.user.username + "/CSV/output/" + request.session['filename']
             path_file_diff = 'MEDIA/' + request.user.username + "/CSV/output/Difference of " + request.session[
                 'filename']
-            quickstart.upload_to_drive(path_folder, 'results of ' + request.session['filename'],
-                                       "Difference of " + request.session['filename'], path_file, path_file_diff)
+            upload_to_google_drive.upload_to_drive(path_folder,
+                                                   'results of ' + request.session['filename'],
+                                                   "Difference of " + request.session['filename'],
+                                                   path_file,
+                                                   path_file_diff)
     return redirect("/download")
 
 
@@ -100,9 +104,14 @@ def fileDownload(request):
 def handle_uploaded_file(f, username, filename):
     DATA_Directory_root = settings.MEDIA_ROOT
     path = os.path.join(DATA_Directory_root, username, "CSV", "input", filename)
-    path2 = os.path.join(DATA_Directory_root, username, "CSV", "input")
-    if not os.path.exists(path2):
-        os.makedirs(path2)
+    path_input = os.path.join(DATA_Directory_root, username, "CSV", "input")
+    path_output = os.path.join(DATA_Directory_root, username, "CSV", "output")
+
+    if not os.path.exists(path_input):
+        os.makedirs(path_input)
+
+    if not os.path.exists(path_output):
+        os.makedirs(path_output)
 
     with open(path, 'wb+') as destination:
         for chunk in f.chunks():

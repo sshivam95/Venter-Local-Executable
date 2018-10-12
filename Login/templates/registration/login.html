@@ -1,5 +1,4 @@
 {% extends 'Login/base.html' %}
-
 {% block title %}Login{% endblock %}
 {% block link %}{% url 'login' %} {% endblock %}
 {% block content %}
@@ -87,10 +86,6 @@
             background: #fff;
         }
 
-        .check1 {
-            text-align: left;
-        }
-
         label.check {
             float: none;;
         }
@@ -104,16 +99,6 @@
             margin-top: 1em;
             flex-basis: 100%;
             -webkit-flex-basis: 100%;
-        }
-
-        a.w3ls-right {
-            float: right;
-            font-size: 14px;
-            color: #000000;
-            font-weight: 500;
-            margin-bottom: 10px;
-            text-transform: capitalize;
-            letter-spacing: 2px;
         }
 
         .w3ls-login input[type=submit] {
@@ -160,7 +145,6 @@
             <div class="agile-field-txt">
                 <label for="id_password">
                     <i class="fa fa-lock" aria-hidden="true"></i> password :</label>
-                {#                <a href="/password_reset/" class="w3ls-right">forgot password?</a>#}
                 <input type="password" name="password" required=""
                        id="id_password">
                 <div class="agile_label">

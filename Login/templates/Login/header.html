@@ -1,26 +1,20 @@
 {% extends 'Login/base.html' %}
-
-
-
 {% block logout %}
     {% if user.is_authenticated %}
         <div class="collapse navbar-collapse" id="topNavBar">
-
-
             <ul class="nav navbar-nav navbar-right">
-
                 <li class="">
                     <a href="{% url 'edit_profile' %}">
                         <span class="glyphicon glyphicon-user" aria-hidden="true"></span>&nbsp; {{ user.username }}
                     </a>
                 </li>
-
                 <li class="">
                     <a href="{% url 'edit_profile' %}">
                         <span class="glyphicon glyphicon-briefcase"
                               aria-hidden="true"></span>&nbsp; {{ user.groups.all.0 }}
                     </a>
                 </li>
+
                 {% if user.groups.all.0.name == "ICMC" %}
 
                     <li class="">
@@ -29,15 +23,17 @@
                               aria-hidden="true"></span>&nbsp; MGCM Category List
                         </a>
                     </li>
+
                 {% elif user.groups.all.0.name == "SpeakUP" %}
+
                     <li class="">
                         <a href="{% url 'SpeakupCategory' %}">
                         <span class="glyphicon glyphicon-list-alt"
                               aria-hidden="true"></span>&nbsp; SpeakUp Category List
                         </a>
                     </li>
-                {% endif %}
 
+                {% endif %}
 
                 <li class="">
                     <a href="{% url 'logout' %}">
@@ -48,35 +44,42 @@
 
         </div>
     {% endif %}
+
 {% endblock %}
 
 {% block tabs %}
+
     {% if user.is_authenticated %}
+
         <ul class="nav nav-tabs">
             <li class="nav-item">
                 <a class="nav-link active" href="{% url 'predict' %}">Category Prediction Model</a>
             </li>
         </ul>
+
     {% endif %}
+
 {% endblock %}
 
-
-
 {% block content %}
+
     {% if user.is_authenticated %}
+
         {% block verified %}{% endblock %}
+
     {% else %}
+
         <div class="alert alert-danger alert-dismissible fade in">
             <strong>Warning!</strong>
             <p>You are not logged in</p>
-
         </div>
+
         <a href="{% url 'login' %}">
             <p align="center">
                 <button>Login</button>
             </p>
         </a>
 
-
     {% endif %}
+
 {% endblock %}
