@@ -3,15 +3,14 @@ import pickle
 import numpy as np
 
 from numpy import linalg as la
-from sklearn.model_selection import train_test_split
-from tensorflow.contrib.tensorboard.plugins import projector
+# from tensorflow.contrib.tensorboard.plugins import projector
 from nltk.tokenize import TweetTokenizer
 
 # Added by Meet shah
 from django.conf import settings
-#, encoding='utf-8'
 
-class ImportGraph():
+
+class ImportGraph:
     instance = None
 
     @staticmethod
@@ -21,29 +20,31 @@ class ImportGraph():
         else:
             return ImportGraph.instance
 
-    def init_weight(self,shape, name):
+    def init_weight(self, shape, name):
         initial = tf.truncated_normal(shape, stddev=0.1, name=name, dtype=tf.float32)
         return tf.Variable(initial)
 
-    def init_bias(self,shape, name):
+    def init_bias(self, shape, name):
         initial = tf.truncated_normal(shape=shape, stddev=0.1, name=name, dtype=tf.float32)
         return tf.Variable(initial)
 
     def __init__(self, path_to_model):
+        global word_vectors
         g = tf.Graph()
         with g.as_default():
             train_attention = True
             initialize_random = False
             train_we = True
 
-            with open(settings.BASE_DIR + str("/Prediction/ML_model/dataset/dataset_mcgm_clean/word_index_map_mcgm.pickle"), "rb") as myFile:
+            with open(settings.BASE_DIR + str(
+                    "/Prediction/ML_model/dataset/dataset_mcgm_clean/word_index_map_mcgm.pickle"), "rb") as myFile:
                 self.word_index_map = pickle.load(myFile, encoding='latin1')
-
 
             if not initialize_random:
 
                 # load pre-trained word embedding.
-                with open(settings.BASE_DIR + "/Prediction/ML_model/dataset/dataset_mcgm_clean/word_vectors_mcgm.pickle", "rb") as myFile:
+                with open(settings.BASE_DIR + "/Prediction/ML_model/dataset/dataset_mcgm_clean/word_vectors_mcgm.pickle",
+                          "rb") as myFile:
                     word_vectors = pickle.load(myFile, encoding='latin1')
 
                 word_vectors = np.asarray(word_vectors).astype(np.float32)
@@ -51,20 +52,14 @@ class ImportGraph():
                 for i in range(len(word_vectors) - 1):
                     word_vectors[i] /= (la.norm((word_vectors[i])))
 
-            #
-            # for i in range(len(word_vectors) - 1):
-            #     print np.max(np.abs(word_vectors[i]))
-
-
-
             vocab_size = len(word_vectors)
             embedding_dim = 300
-            learning_rate = 1e-3
+            # learning_rate = 1e-3
             # decay_factor = 0.99
             self.max_padded_sentence_length = 35
-            batch_size = 100
-            iterations = 200
-            highest_val_acc = 0
+            # batch_size = 100
+            # iterations = 200
+            # highest_val_acc = 0
             self.last_index = len(word_vectors) - 1
 
             def init_weight(shape, name):
@@ -88,8 +83,7 @@ class ImportGraph():
                 embedding_init = tf.Variable(tf.constant(word_vectors, shape=[vocab_size, embedding_dim]),
                                              trainable=train_we, name="word_embedding")
 
-            config = projector.ProjectorConfig()
-
+            # config = projector.ProjectorConfig()
             # It will hold tensor of size [batch_size, max_padded_sentence_length]
             self.X = tf.placeholder(tf.int32, [None, self.max_padded_sentence_length])
 
@@ -135,7 +129,6 @@ class ImportGraph():
                 # Simply Average out word embedding to create sentence embedding
                 sentence_embedding = tf.reduce_mean(word_embeddings, axis=1)
 
-
             def get_batches(X, Y, bsize):
                 for i in range(0, len(X) - bsize + 1, bsize):
                     indices = slice(i, i + bsize)
@@ -143,7 +136,6 @@ class ImportGraph():
 
             input_layer_size = embedding_dim
             output_layer_size = 165
-
 
             # Hidden layer of size 1024
             no_of_nurons_h1 = 512
@@ -164,24 +156,7 @@ class ImportGraph():
             y2 = tf.matmul(y1, W2) + b2
 
             # It will hold the true label for current batch
-            y_ = tf.placeholder(tf.int32, shape=[None, output_layer_size])
-
-            check_op = tf.add_check_numerics_ops()
-
-            loss = tf.reduce_mean(tf.nn.softmax_cross_entropy_with_logits(logits=y2, labels=y_))
-
-            train_step = tf.train.GradientDescentOptimizer(0.01).minimize(loss)
-            # train_step = tf.train.AdamOptimizer(learning_rate).minimize(loss)
-            correct_prediction = tf.equal(tf.argmax(y2, 1), tf.argmax(y_, 1))
-
-            accuracy = tf.reduce_mean(tf.cast(correct_prediction, tf.float32))
-
             self.probs = tf.nn.softmax(y2)
-            predicted_lables = tf.argmax(self.probs, 1)
-
-            correct_lables = tf.argmax(y_, 1)
-
-            variables_names = [v.name for v in tf.trainable_variables()]
 
             init = tf.global_variables_initializer()
             self.sess = tf.Session()
@@ -197,9 +172,7 @@ class ImportGraph():
         # The 'x' corresponds to name of input placeholder
         return self.sess.run(self.probs, feed_dict={self.X: data})
 
-
-
-    def process_query(self,line, flag):
+    def process_query(self, line, flag):
 
         if flag == 1:
             tokens = TweetTokenizer().tokenize(line.strip())
@@ -214,7 +187,6 @@ class ImportGraph():
         if len(indices) < 100:
             indices += [self.last_index] * (self.max_padded_sentence_length - len(indices))
         else:
-            print("Input sentence too Big! Max length allowed is 100")
             return ""
         indices = np.asarray(indices)
         data = []
@@ -222,14 +194,3 @@ class ImportGraph():
         data = np.asarray(data)
 
         return data
-
-
-### Using the class ###
- # random data
-# model = ImportGraph('model.ckpt')
-#
-# print "First done"
-#
-# data = model.process_query("Garbage Dumped",1)
-# result = model.run(data)
-# print(result)
