@@ -1,9 +1,6 @@
 import numpy as np
-
 import pandas as pd
-
 from .ImportGraph import ImportGraph
-
 import os
 from django.conf import settings
 
@@ -53,22 +50,3 @@ class ClassificationService:
         for i in range(len(final_categories)):
             result[final_categories[i]] = final_probability[i]
         return result
-
-
-'''
-
-cs = ClassificationService()
-print cs.index_complaint_title_map
-#
-while True:
-     input = raw_input('Enter Complaint Text:')
-     # "DRAINAGE LINE COMING TO OUR PREMISES IS CHOCKED AND WATER HAS STARTED ACCUMULATING IN THE CHAMBER IN OUR NEIGHBOURS PLOT. THIS IS DUE TO THE BLOCKAGE"
-     result = cs.get_top_3_cats_with_prob(input)
-     print "\n\n"
-
-     print result
-
-     print "\n\n"
-
-
-'''
