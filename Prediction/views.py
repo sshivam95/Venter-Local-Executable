@@ -57,7 +57,7 @@ def upload_file(request):
                     return render(request, 'Prediction/predict_categories.html',
                                   context)  # Sending the data in the Frontend to display
                 else:
-                    # If the header_flag is false, delete the object of EditCsv and raise an error
+                    # If the header_flag is false, delete the Input file
                     csv.delete()
                     form = upload_file_form()  # Reinitialize the upload_file_form
                     return render(request, 'Prediction/upload_file.html',
