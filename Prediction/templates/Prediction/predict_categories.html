@@ -1,8 +1,8 @@
 {% extends 'Login/header.html' %}
+{% block title %}Categoty Prediction{% endblock %}
 {% block link %}{% url 'home' %} {% endblock %}
 {% block verified %}
     <script>
-
         var con;
         var sim;
         function progressBarSim(al) {
@@ -10,12 +10,7 @@
             var status = document.getElementById('status');
             status.innerHTML = al + "%";
             bar.value = al;
-
-
             if (al == 100) {
-
-                {#                var a = setTimeout(function hundred(){bar.value = 100;status.innerHTML = "100%";}, 5000);#}
-                {#                clearTimeout(a);#}
                 bar.value = 100;
                 status.innerHTML = "100%";
                 clearTimeout(sim);
@@ -59,21 +54,14 @@
             }
         }
 
-        function colorcodeLevel(num, index) {
-            var color = ['#ffffff', '#00FF00', '#388E3C', '#FFFF66', '#d32f2f', '#ff0000'];
-            $("#" + index).attr("style", "background-color:" + color[num]);
-        }
-
         function send() {
             alert("Your file is downloading. PLEASE WAIT");
             var data = {}
             data['csrfmiddlewaretoken'] = $('input[name="csrfmiddlewaretoken"]').val();
-
             var totalCount = "{{ rows }}";
             var currCount = 0;
             showLoading();
             progressBarSim(0);
-            {#            console.log("totalCount = "+ totalCount);#}
             table.$("select").each(function () {
                 var t0 = performance.now();
                 data[$(this).attr('id')] = $(this).val();
@@ -83,13 +71,9 @@
                 currCount++;
                 var percent = parseInt((currCount / totalCount) * 100);
                 var t1 = performance.now();
-
                 sim = setTimeout("progressBarSim(" + percent + ")", 0.05);
-
-                {#                console.log("Time required: " + (t1 - t0) + " milliseconds");#}
             });
             data['radio'] = $("input[type=radio]:checked").val()
-
             $.ajax({
                 url: 'checkOutput/',
                 type: 'POST',
@@ -135,7 +119,6 @@
                         }, 100); // cleanup
                     }
                     hideSmallLoader();
-
                 },
                 error: function (jqXHR, textStatus, errorThrown) {
                     alert(jqXHR.status + " " + textStatus + " " + errorThrown + ", Please Try again or refresh the page.");
@@ -149,7 +132,6 @@
             });
             hideLoading()
             // Handle form submission event
-
             $('#submit').on('click', function () {
                 var ques = "Are you sure you want to allow your data to be uploaded for the Venter team to View?"
                 if ($("input[type=radio]:checked").val() != "no") {
@@ -178,9 +160,6 @@
                 <th>Highest Confidence</th>
                 <th>Predicted Categories</th>
                 <th>Problem Description</th>
-                {#                {% if user.groups.all.0.name == "SpeakUP" %}#}
-                {#                    <th>Urgency Level</th>#}
-                {#                {% endif %}#}
                 </thead>
                 <tbody>
                 {% for dict in dict_list %}
@@ -201,25 +180,7 @@
                                         {% endif %}
                                     {% endfor %}
                                 </select><br><br>
-{#                                <button id="add_button{{ dict.index }}" type="button">+</button>#}
                                 <input id="other_category{{ dict.index }}" size="50" placeholder='Type Category'>
-{#                                <button id="remove_button{{ dict.index }}" type="button">-</button>#}
-{#                                <script>#}
-{##}
-{#                                $('#add_button{{ dict.index }}').click(function(){#}
-{#                                $('#td{{ dict.index }}').append("<input type='text' style='display: block; width : auto' placeholder='Type Category' id='other_category{{ dict.index }}' name='other{{ dict.index }}'/>");#}
-{#                                $("#other_category{{ dict.index }}").autocomplete({#}
-{#                                source: availableTags, multiple: true#}
-{#                                });#}
-{##}
-{#                                });#}
-{##}
-{#                                $('#remove_button{{ dict.index }}').click(function(){#}
-{#                                $("#other_category{{ dict.index }}").remove()#}
-{#                                });#}
-{##}
-{#                                </script>#}
-
                                 <script>
                                     $(function () {
                                         var availableTags = [
@@ -273,12 +234,6 @@
                             </td>
                         </form>
                         <td style="width: 55%">{{ dict.problem_description }}</td>
-                        {#                        {% if user.groups.all.0.name == "SpeakUP" %}#}
-                        {#                            <td id="em{{ dict.index }}" style="width : 5%">{{ dict.emotion }}</td>#}
-                        {#                            <script>#}
-                        {#                                colorcodeLevel({{ dict.emotion }}, "em{{ dict.index }}");#}
-                        {#                            </script>#}
-                        {#                        {% endif %}#}
                     </tr>
                 {% endfor %}
                 </tbody>
@@ -296,7 +251,7 @@
                     <input type="radio" name="optradio" value="no">NO
                 </label>
             </div>
-
+            <br>
             <table>
                 <tr style="padding: 5px">
                     <td>
@@ -320,6 +275,4 @@
 
         </div>
     </div>
-
-
 {% endblock %}

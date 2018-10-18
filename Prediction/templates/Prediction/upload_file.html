@@ -1,21 +1,7 @@
 {% extends 'Login/header.html' %}
+{% block title %}Upload CSV file{% endblock %}
 {% block link %}{% url 'home' %} {% endblock %}
 {% block verified %}
-
-    <style type="text/css">
-
-        /* Add a background color and some padding around the form */
-        .container_form {
-            border-radius: 5px;
-            background-color: #f2f2f2;
-            padding: 20px;
-            width: auto;
-            font-size: 20px;
-        }
-
-
-    </style>
-
     <script>
         function showLoading() {
             if ($("#filename").val() != "") {
@@ -23,15 +9,12 @@
                 $("#preload").attr('style', 'display:block');
             }
         }
-
-
     </script>
     <div id="preload" align="center" style="display: none">
         <h1>Predicting your results</h1>
         <div class="loader"></div>
         <h2>Please Wait...</h2>
     </div>
-
     <div id="uploadFile">
         {% if Error %}
             <div class="alert alert-danger">
@@ -39,15 +22,13 @@
                 {{ Error }}
             </div>
         {% endif %}
-        <h3> Upload CSV File here</h3>
+        <h3> Upload CSV file here</h3>
         <form action="" method="post" enctype="multipart/form-data">
-
             <div class="container_form">
                 {% csrf_token %}
                 {{ form.as_p }}
                 <input type="submit" value="Submit" onclick="showLoading()">
             </div>
         </form>
-
     </div>
 {% endblock %}

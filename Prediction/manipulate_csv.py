@@ -1,10 +1,37 @@
 """
-Author = Meet Shah
+Author : Meet Shah
 After validating post request, control will transfer to this class to read uploaded csv and append category column in it.
 This code assumes that column number 4{ column 0 being base column} is always going to be complaint title.
 
 source :  Read only headers from csv file
             => https://stackoverflow.com/questions/24962908/how-can-i-read-only-the-header-column-of-a-csv-file-using-python
+
+Author : Shivam Sharma
+Structure of Dict_List which will be sent to the frontend:
+
+            dict_list = [
+                dict = {
+                    'index' = index1,
+                    'problem_description' = complaint_description1,
+                    'category': {
+                        'category1': 80,
+                        'category2': 10,
+                        'category3': 10
+                    }
+                },
+                dict = {
+                    'index' = index2,
+                    'problem_description' = complaint_description2,
+                    'category': {
+                        'category1': 80,
+                        'category2': 10,
+                        'category3': 10
+                    }
+                },
+                .
+                .
+                .
+            ]
 """
 
 import pandas as pd
@@ -92,13 +119,13 @@ class edit_csv:
             sep=',',
             encoding='utf-8', index=False)
 
-    def Read_file(self):
+    def read_file(self):
         """
         encoding='utf-8' for MCGM
         """
         csvfile = pd.read_csv(settings.MEDIA_ROOT + "/" + self.username + "/CSV/input" + "/" + self.filename, sep=',',
                               header=0, encoding='utf-8')
-        Dict_List = []
+        dict_list = []
         description = []
         cat1 = []
         cat2 = []
@@ -152,7 +179,7 @@ class edit_csv:
             cat3.append(sorted_cats[2][0])
 
             dict['category'] = sorted_cats
-            Dict_List.append(dict)
+            dict_list.append(dict)
 
         df = pd.DataFrame({'Predicted category 1': cat1, 'Predicted category 2': cat2, 'Predicted category 3': cat3,
                            'Complaint Description': description})
@@ -160,4 +187,4 @@ class edit_csv:
         df.to_csv(os.path.join(settings.MEDIA_ROOT, self.username, "CSV", "input", "Difference.csv"), sep=',',encoding='utf-8', index=False)
 
         del self.cs
-        return Dict_List, csvfile.shape[0]
+        return dict_list, csvfile.shape[0]

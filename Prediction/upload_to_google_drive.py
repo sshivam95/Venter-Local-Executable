@@ -1,3 +1,12 @@
+"""
+Author: Shivam Sharma
+
+This file is use to upload the output and the Difference files to the google drive of venteriitb@gmail.com
+
+The documentation can be found here => https://developers.google.com/drive/api/v3/manage-uploads
+Video tutorial link => https://youtu.be/-7YH6rdR-tk
+Stack OverFlow question => https://stackoverflow.com/questions/48436959/how-to-upload-csv-file-and-use-it-from-google-drive-into-google-colaboratory
+"""
 from __future__ import print_function
 from googleapiclient import discovery
 from googleapiclient.http import MediaFileUpload

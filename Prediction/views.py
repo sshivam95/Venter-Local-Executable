@@ -1,7 +1,7 @@
 from django.shortcuts import redirect
 from django.contrib.auth.models import Group
 from django.shortcuts import render
-from .forms import UploadFileForm
+from .forms import upload_file_form
 from django.conf import settings
 from .manipulate_csv import edit_csv
 from django.http import HttpResponse
@@ -18,39 +18,39 @@ def upload_file(request):
     """
 
     if not request.user.is_authenticated:
-        return render(request, 'Prediction/predict_complaint.html')
+        return render(request, 'Prediction/upload_file.html')
     else:
         query_set = Group.objects.filter(user=request.user)
         query_set_size = query_set.count()
-        Error_dict = {'error': "Please Contact Admin to add you in group"}
+        error_dict = {'error': "Please contact admin to add you in group"}
         if query_set_size == 0:
-            return render(request, 'Prediction/error_message.html', Error_dict)
+            return render(request, 'Prediction/error_message.html', error_dict)
         else:
             company = str(query_set.all()[0])
             request.session['company'] = company
 
         if request.method == 'POST':
-            form = UploadFileForm(request.POST, request.FILES)
+            form = upload_file_form(request.POST, request.FILES)
             user_name = request.user.username
             file_name = str(request.FILES['file'].name)
             if form.is_valid():
                 handle_uploaded_file(request.FILES['file'], user_name, file_name)
-                Csv = edit_csv(file_name, user_name, company)
-                Header_flag, CATEGORY_LIST = Csv.check_csvfile_header()
-                if Header_flag:
-                    Dict_List, rows = Csv.Read_file()
-                    context = {'dict_list': Dict_List, 'category_list': CATEGORY_LIST, 'rows': rows}
+                csv = edit_csv(file_name, user_name, company)
+                header_flag, category_list = csv.check_csvfile_header()
+                if header_flag:
+                    dict_list, rows = csv.read_file()
+                    context = {'dict_list': dict_list, 'category_list': category_list, 'rows': rows}
                     request.session['Rows'] = rows
                     request.session['filename'] = file_name
-                    return render(request, 'Prediction/check_output.html', context)
+                    return render(request, 'Prediction/predict_categories.html', context)
                 else:
-                    Csv.delete()
-                    form = UploadFileForm()
-                    return render(request, 'Prediction/predict_complaint.html',
-                                  {'form': form, 'Error': "Please Submit Csv File With Valid Headers !!!"})
+                    csv.delete()
+                    form = upload_file_form()
+                    return render(request, 'Prediction/upload_file.html',
+                                  {'form': form, 'Error': "Please submit CSV file with valid headers !!!"})
         else:
-            form = UploadFileForm()
-        return render(request, 'Prediction/predict_complaint.html', {'form': form})
+            form = upload_file_form()
+        return render(request, 'Prediction/upload_file.html', {'form': form})
 
 
 def handle_form_data(request):
@@ -73,8 +73,8 @@ def handle_form_data(request):
                 else:
                     correct_category.append(selected_category)
         print(correct_category)
-        Csv = edit_csv(file_name, user_name, company)
-        Csv.write_file(correct_category)
+        csv = edit_csv(file_name, user_name, company)
+        csv.write_file(correct_category)
 
         if request.POST['radio'] != "no":
             path_folder = request.user.username + "/CSV/output/"
@@ -102,10 +102,10 @@ def fileDownload(request):
 
 
 def handle_uploaded_file(f, username, filename):
-    DATA_Directory_root = settings.MEDIA_ROOT
-    path = os.path.join(DATA_Directory_root, username, "CSV", "input", filename)
-    path_input = os.path.join(DATA_Directory_root, username, "CSV", "input")
-    path_output = os.path.join(DATA_Directory_root, username, "CSV", "output")
+    data_directory_root = settings.MEDIA_ROOT
+    path = os.path.join(data_directory_root, username, "CSV", "input", filename)
+    path_input = os.path.join(data_directory_root, username, "CSV", "input")
+    path_output = os.path.join(data_directory_root, username, "CSV", "output")
 
     if not os.path.exists(path_input):
         os.makedirs(path_input)

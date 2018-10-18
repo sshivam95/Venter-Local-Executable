@@ -4,7 +4,7 @@ from django.utils.translation import ugettext_lazy as f
 from django.conf import settings
 
 
-class UploadFileForm(forms.Form):
+class upload_file_form(forms.Form):
     """
     Author = Meet Shah
     Date:    10/05/2018
