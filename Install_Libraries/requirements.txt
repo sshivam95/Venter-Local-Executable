@@ -29,7 +29,7 @@ google-auth-httplib2==0.0.3
 greenlet==0.4.13
 grpcio==1.11.0
 gunicorn==19.8.1
-html5lib==0.9999999
+html5lib==0.99999999
 httplib2==0.18.0
 httplib2shim==0.0.3
 idna==2.6
